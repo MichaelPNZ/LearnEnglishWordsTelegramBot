@@ -6,13 +6,13 @@ data class Word(
     val original: String,
     val translate: String,
     val correctAnswersCount: Int = 0,
-    var learnedWordsCount: Int = 0,
 )
 
 fun main() {
 
     val wordsFile: File = File("words.txt")
     val dictionary = mutableListOf<Word>()
+    var learnedWordsCount = 0
 
     val lines = wordsFile.readLines()
     lines.forEach { line ->
@@ -20,11 +20,14 @@ fun main() {
         val word = Word(
             original = line[0],
             translate = line[1],
-            correctAnswersCount = line.getOrNull(2)?.toIntOrNull() ?: 0,
-            learnedWordsCount = line.getOrNull(3)?.toIntOrNull() ?: 0
+            correctAnswersCount = line.getOrNull(2)?.toIntOrNull() ?: 0
         )
+
+        if (word.correctAnswersCount > 5) learnedWordsCount++
+
         dictionary.add(word)
     }
     println(dictionary)
+    println("Выученных слов: $learnedWordsCount")
 
 }
