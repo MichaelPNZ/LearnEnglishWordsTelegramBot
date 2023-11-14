@@ -31,8 +31,7 @@ fun main() {
         when(answer) {
             "1" -> println("Вы нажали 1")
             "2" -> {
-                var learnedWordsCount: Int
-                learnedWordsCount = dictionary.filter { it.correctAnswersCount >= 3 }.count()
+                val learnedWordsCount = dictionary.filter { it.correctAnswersCount >= 3 }.count()
                 println("Выучено $learnedWordsCount из ${dictionary.count()} слов | ${100 / dictionary.count() * learnedWordsCount}%")
             }
             "0" -> {
