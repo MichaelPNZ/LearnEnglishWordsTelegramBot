@@ -12,7 +12,6 @@ fun main() {
 
     val wordsFile: File = File("words.txt")
     val dictionary = mutableListOf<Word>()
-    var learnedWordsCount = 0
 
     val lines = wordsFile.readLines()
     lines.forEach { line ->
@@ -23,11 +22,24 @@ fun main() {
             correctAnswersCount = line.getOrNull(2)?.toIntOrNull() ?: 0
         )
 
-        if (word.correctAnswersCount > 5) learnedWordsCount++
-
         dictionary.add(word)
     }
-    println(dictionary)
-    println("Выученных слов: $learnedWordsCount")
+
+    while (true) {
+        println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
+        val answer = readln()
+        when(answer) {
+            "1" -> println("Вы нажали 1")
+            "2" -> {
+                val learnedWordsCount = dictionary.filter { it.correctAnswersCount >= 3 }.count()
+                println("Выучено $learnedWordsCount из ${dictionary.count()} слов | ${100 / dictionary.count() * learnedWordsCount}%")
+            }
+            "0" -> {
+                println("Вы нажали 0")
+                return
+            }
+            else -> println("неверное нажатие")
+        }
+    }
 
 }
