@@ -5,7 +5,7 @@ import java.io.File
 data class Word(
     val original: String,
     val translate: String,
-    val correctAnswersCount: Int = 0,
+    var correctAnswersCount: Int = 0,
 )
 
 fun main() {
@@ -31,7 +31,7 @@ fun main() {
         when(answer) {
             "1" -> {
                 while (true) {
-                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }.map { it.original }
+                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }
 
                     if (unlearnedWords.isEmpty()) {
                         println("Вы выучили все слова!")
@@ -39,25 +39,30 @@ fun main() {
                     } else {
                         val wordForQuestion = unlearnedWords.shuffled().firstOrNull()
 
-                        println("Выберите правильный первеод слова: $wordForQuestion или нажмите 0 для выхода в главное меню")
+                        println("Выберите правильный первевод слова: ${wordForQuestion?.original} или нажмите 0 для выхода в главное меню")
 
-                        val answerOptions = unlearnedWords.shuffled().take(4).mapIndexed { index, element -> "${index + 1}: $element" }
+                        val unlearnedWordTranslations = unlearnedWords.map { it.translate }
+                        val answerOptions = unlearnedWordTranslations.shuffled().take(4)
 
-                        answerOptions.forEach { println(it) }
-                    }
+                        answerOptions.mapIndexed { index, option -> println("${index + 1}: ${option}") }
 
-                    val answer1 = readln()
+                        val userAnswer = readln().toIntOrNull()
 
-                    when(answer1) {
-                        "1" -> println("Вы нажали 1")
-                        "2" -> println("Вы нажали 2")
-                        "3" -> println("Вы нажали 3")
-                        "4" -> println("Вы нажали 4")
-                        "0" -> {
-                            println("Выходим в главное меню")
-                            break
+                        when(userAnswer) {
+                            in 1..4 -> {
+                                if (userAnswer != null && answerOptions[userAnswer - 1] == wordForQuestion?.translate) {
+                                    println("Правильно!")
+                                    wordForQuestion.correctAnswersCount++
+                                    saveDictionary(dictionary)
+                                } else println("НЕ правильно!")
+                            }
+                            0 -> {
+                                println("Выходим в главное меню")
+                                break
+                            }
+                            else -> println("неверное нажатие")
                         }
-                        else -> println("неверное нажатие")
+
                     }
 
                 }
@@ -74,6 +79,12 @@ fun main() {
         }
     }
 
+}
+
+fun saveDictionary(dictionary: List<Word>) {
+    val wordsFile: File = File("words.txt")
+    val fileContent = dictionary.joinToString("\n") { "${it.original}|${it.translate}|${it.correctAnswersCount}" }
+    wordsFile.writeText(fileContent)
 }
 
 const val MIN_COUNT_CORRECT_ANSWERS = 3
