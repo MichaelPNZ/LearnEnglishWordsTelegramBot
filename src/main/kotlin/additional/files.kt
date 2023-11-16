@@ -31,20 +31,19 @@ fun main() {
         when(answer) {
             "1" -> {
                 while (true) {
-                    // Наполняем список невыученных слов
-                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < 3 }.map { it.original }
+                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }.map { it.original }
 
-                    // Проверяем есть ли невыученные слова
                     if (unlearnedWords.isEmpty()) {
                         println("Вы выучили все слова!")
                         return
                     } else {
-                        val wordForQuestion = unlearnedWords.shuffled().firstOrNull() // Слово для вопроса/правильный ответ
+                        val wordForQuestion = unlearnedWords.shuffled().firstOrNull()
 
                         println("Выберите правильный первеод слова: $wordForQuestion или нажмите 0 для выхода в главное меню")
 
-                        // Печатаем список рандомных ответов
-                        unlearnedWords.shuffled().take(4).mapIndexed { index, element -> println("${index + 1}: $element") }
+                        val answerOptions = unlearnedWords.shuffled().take(4).mapIndexed { index, element -> "${index + 1}: $element" }
+
+                        answerOptions.forEach { println(it) }
                     }
 
                     val answer1 = readln()
@@ -64,7 +63,7 @@ fun main() {
                 }
             }
             "2" -> {
-                val learnedWordsCount = dictionary.filter { it.correctAnswersCount >= 3 }.count()
+                val learnedWordsCount = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }.count()
                 println("Выучено $learnedWordsCount из ${dictionary.count()} слов | ${100 / dictionary.count() * learnedWordsCount}%")
             }
             "0" -> {
@@ -76,3 +75,5 @@ fun main() {
     }
 
 }
+
+const val MIN_COUNT_CORRECT_ANSWERS = 3
