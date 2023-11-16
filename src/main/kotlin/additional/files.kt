@@ -31,23 +31,21 @@ fun main() {
         when(answer) {
             "1" -> {
                 while (true) {
-                    val unlearnedWords = mutableListOf<String>()
-
                     // Наполняем список невыученных слов
-                    dictionary.forEach { if (it.correctAnswersCount < 3) unlearnedWords.add(it.original) }
-
-                    val wordForQuestion = unlearnedWords.shuffled().firstOrNull() // Слово для вопроса/правильный ответ
+                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < 3 }.map { it.original }
 
                     // Проверяем есть ли невыученные слова
                     if (unlearnedWords.isEmpty()) {
                         println("Вы выучили все слова!")
                         return
+                    } else {
+                        val wordForQuestion = unlearnedWords.shuffled().firstOrNull() // Слово для вопроса/правильный ответ
+
+                        println("Выберите правильный первеод слова: $wordForQuestion или нажмите 0 для выхода в главное меню")
+
+                        // Печатаем список рандомных ответов
+                        unlearnedWords.shuffled().take(4).mapIndexed { index, element -> println("${index + 1}: $element") }
                     }
-
-                    println("Выберите правильный первеод слова: $wordForQuestion или нажмите 0 для выхода в главное меню")
-
-                    // Печатаем список рандомных ответов
-                    unlearnedWords.take(4).shuffled().forEachIndexed { index, element ->  println("${index + 1}: $element")  }
 
                     val answer1 = readln()
 
