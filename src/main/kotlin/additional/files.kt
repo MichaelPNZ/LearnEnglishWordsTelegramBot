@@ -32,7 +32,6 @@ fun main() {
             "1" -> {
                 while (true) {
                     val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }
-                    val learnedWords = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
 
                     if (unlearnedWords.isEmpty()) {
                         println("Вы выучили все слова!")
@@ -45,7 +44,10 @@ fun main() {
                         var answerOptions = listOf <Word>()
 
                         answerOptions = if (unlearnedWords.count() >= COUNT_OPTIONALS) unlearnedWords.shuffled().take(COUNT_OPTIONALS)
-                        else (unlearnedWords + learnedWords.shuffled()).shuffled().take(COUNT_OPTIONALS)
+                        else {
+                            val learnedWords = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
+                            (unlearnedWords + learnedWords).shuffled().take(COUNT_OPTIONALS)
+                        }
 
                         val variants = answerOptions.mapIndexed { index, option -> "${index + 1}: ${option.translate}" }
 
