@@ -41,9 +41,7 @@ fun main() {
 
                         println("Выберите правильный перевод слова: ${wordForQuestion?.original} или нажмите 0 для выхода в главное меню")
 
-                        var answerOptions = listOf <Word>()
-
-                        answerOptions = if (unlearnedWords.count() >= COUNT_OPTIONALS) unlearnedWords.shuffled().take(COUNT_OPTIONALS)
+                        val answerOptions = if (unlearnedWords.count() >= COUNT_OPTIONALS) unlearnedWords.shuffled().take(COUNT_OPTIONALS)
                         else {
                             val learnedWords = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
                             (unlearnedWords + learnedWords).shuffled().take(COUNT_OPTIONALS)
@@ -53,9 +51,7 @@ fun main() {
 
                         println(variants.joinToString(separator = "\n", postfix = "\n0 - выход"))
 
-                        val userAnswer = readln().toIntOrNull()
-
-                        when(userAnswer) {
+                        when(val userAnswer: Int? = readln().toIntOrNull()) {
                             in 1..4 -> {
                                 if (userAnswer != null && answerOptions[userAnswer - 1].translate == wordForQuestion?.translate) {
                                     println("Правильно!")
@@ -75,7 +71,7 @@ fun main() {
                 }
             }
             "2" -> {
-                val learnedWordsCount = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }.count()
+                val learnedWordsCount = dictionary.count { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
                 println("Выучено $learnedWordsCount из ${dictionary.count()} слов | ${100 / dictionary.count() * learnedWordsCount}%")
             }
             "0" -> {
