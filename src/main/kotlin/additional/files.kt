@@ -5,7 +5,7 @@ import java.io.File
 data class Word(
     val original: String,
     val translate: String,
-    val correctAnswersCount: Int = 0,
+    var correctAnswersCount: Int = 0,
 )
 
 fun main() {
@@ -31,7 +31,7 @@ fun main() {
         when(answer) {
             "1" -> {
                 while (true) {
-                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }.map { it.original }
+                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }
 
                     if (unlearnedWords.isEmpty()) {
                         println("Вы выучили все слова!")
@@ -39,31 +39,39 @@ fun main() {
                     } else {
                         val wordForQuestion = unlearnedWords.shuffled().firstOrNull()
 
-                        println("Выберите правильный первеод слова: $wordForQuestion или нажмите 0 для выхода в главное меню")
+                        println("Выберите правильный перевод слова: ${wordForQuestion?.original} или нажмите 0 для выхода в главное меню")
 
-                        val answerOptions = unlearnedWords.shuffled().take(4).mapIndexed { index, element -> "${index + 1}: $element" }
-
-                        answerOptions.forEach { println(it) }
-                    }
-
-                    val answer1 = readln()
-
-                    when(answer1) {
-                        "1" -> println("Вы нажали 1")
-                        "2" -> println("Вы нажали 2")
-                        "3" -> println("Вы нажали 3")
-                        "4" -> println("Вы нажали 4")
-                        "0" -> {
-                            println("Выходим в главное меню")
-                            break
+                        val answerOptions = if (unlearnedWords.count() >= COUNT_OPTIONALS) unlearnedWords.shuffled().take(COUNT_OPTIONALS)
+                        else {
+                            val learnedWords = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
+                            (unlearnedWords + learnedWords).shuffled().take(COUNT_OPTIONALS)
                         }
-                        else -> println("неверное нажатие")
+
+                        val variants = answerOptions.mapIndexed { index, option -> "${index + 1}: ${option.translate}" }
+
+                        println(variants.joinToString(separator = "\n", postfix = "\n0 - выход"))
+
+                        when(val userAnswer: Int? = readln().toIntOrNull()) {
+                            in 1..4 -> {
+                                if (userAnswer != null && answerOptions[userAnswer - 1].translate == wordForQuestion?.translate) {
+                                    println("Правильно!")
+                                    wordForQuestion.correctAnswersCount++
+                                    saveDictionary(dictionary)
+                                } else println("НЕ правильно!")
+                            }
+                            0 -> {
+                                println("Выходим в главное меню")
+                                break
+                            }
+                            else -> println("неверное нажатие")
+                        }
+
                     }
 
                 }
             }
             "2" -> {
-                val learnedWordsCount = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }.count()
+                val learnedWordsCount = dictionary.count { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
                 println("Выучено $learnedWordsCount из ${dictionary.count()} слов | ${100 / dictionary.count() * learnedWordsCount}%")
             }
             "0" -> {
@@ -76,4 +84,11 @@ fun main() {
 
 }
 
+fun saveDictionary(dictionary: List<Word>) {
+    val wordsFile: File = File("words.txt")
+    val fileContent = dictionary.joinToString("\n") { "${it.original}|${it.translate}|${it.correctAnswersCount}" }
+    wordsFile.writeText(fileContent)
+}
+
 const val MIN_COUNT_CORRECT_ANSWERS = 3
+const val COUNT_OPTIONALS = 4
