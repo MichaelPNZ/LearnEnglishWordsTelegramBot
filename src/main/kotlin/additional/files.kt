@@ -32,6 +32,7 @@ fun main() {
             "1" -> {
                 while (true) {
                     val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }
+                    val learnedWords = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
 
                     if (unlearnedWords.isEmpty()) {
                         println("Вы выучили все слова!")
@@ -39,18 +40,22 @@ fun main() {
                     } else {
                         val wordForQuestion = unlearnedWords.shuffled().firstOrNull()
 
-                        println("Выберите правильный первевод слова: ${wordForQuestion?.original} или нажмите 0 для выхода в главное меню")
+                        println("Выберите правильный перевод слова: ${wordForQuestion?.original} или нажмите 0 для выхода в главное меню")
 
-                        val unlearnedWordTranslations = unlearnedWords.map { it.translate }
-                        val answerOptions = unlearnedWordTranslations.shuffled().take(4)
+                        var answerOptions = listOf <Word>()
 
-                        answerOptions.mapIndexed { index, option -> println("${index + 1}: ${option}") }
+                        answerOptions = if (unlearnedWords.count() >= COUNT_OPTIONALS) unlearnedWords.shuffled().take(COUNT_OPTIONALS)
+                        else (unlearnedWords + learnedWords.shuffled()).shuffled().take(COUNT_OPTIONALS)
+
+                        val variants = answerOptions.mapIndexed { index, option -> "${index + 1}: ${option.translate}" }
+
+                        println(variants.joinToString(separator = "\n", postfix = "\n0 - выход"))
 
                         val userAnswer = readln().toIntOrNull()
 
                         when(userAnswer) {
                             in 1..4 -> {
-                                if (userAnswer != null && answerOptions[userAnswer - 1] == wordForQuestion?.translate) {
+                                if (userAnswer != null && answerOptions[userAnswer - 1].translate == wordForQuestion?.translate) {
                                     println("Правильно!")
                                     wordForQuestion.correctAnswersCount++
                                     saveDictionary(dictionary)
@@ -88,3 +93,4 @@ fun saveDictionary(dictionary: List<Word>) {
 }
 
 const val MIN_COUNT_CORRECT_ANSWERS = 3
+const val COUNT_OPTIONALS = 4
