@@ -14,13 +14,13 @@ fun Question.asConsoleString() : String {
     val variants = this.variants
         .mapIndexed { index, option -> "${index + 1}: ${option.translate}" }
         .joinToString(separator = "\n")
-    return this.correctAnswer.original + "\n" + variants + "\n 0 - выйти в меню"
+    return "$variants\n 0 - выйти в меню"
 }
 
 fun main() {
 
     val trainer = try {
-        LearnWordsTrainer(3, 4)
+        LearnWordsTrainer(3, 4, "words.txt")
     } catch (e: Exception) {
         println("Невозможно загрузить словарь")
         return
