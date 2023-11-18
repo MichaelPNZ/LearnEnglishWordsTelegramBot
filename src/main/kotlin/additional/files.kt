@@ -1,6 +1,8 @@
 package additional
 
-import java.io.File
+import LearnWordsTrainer
+import Question
+import java.lang.Exception
 
 data class Word(
     val original: String,
@@ -8,21 +10,20 @@ data class Word(
     var correctAnswersCount: Int = 0,
 )
 
+fun Question.asConsoleString() : String {
+    val variants = this.variants
+        .mapIndexed { index, option -> "${index + 1}: ${option.translate}" }
+        .joinToString(separator = "\n")
+    return this.correctAnswer.original + "\n" + variants + "\n 0 - выйти в меню"
+}
+
 fun main() {
 
-    val wordsFile: File = File("words.txt")
-    val dictionary = mutableListOf<Word>()
-
-    val lines = wordsFile.readLines()
-    lines.forEach { line ->
-        val line = line.split("|")
-        val word = Word(
-            original = line[0],
-            translate = line[1],
-            correctAnswersCount = line.getOrNull(2)?.toIntOrNull() ?: 0
-        )
-
-        dictionary.add(word)
+    val trainer = try {
+        LearnWordsTrainer(3, 4)
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
     }
 
     while (true) {
@@ -31,33 +32,19 @@ fun main() {
         when(answer) {
             "1" -> {
                 while (true) {
-                    val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_COUNT_CORRECT_ANSWERS }
+                    val question = trainer.getNextQuestion()
 
-                    if (unlearnedWords.isEmpty()) {
+                    if (question == null) {
                         println("Вы выучили все слова!")
-                        return
+                        break
                     } else {
-                        val wordForQuestion = unlearnedWords.shuffled().firstOrNull()
-
-                        println("Выберите правильный перевод слова: ${wordForQuestion?.original} или нажмите 0 для выхода в главное меню")
-
-                        val answerOptions = if (unlearnedWords.count() >= COUNT_OPTIONALS) unlearnedWords.shuffled().take(COUNT_OPTIONALS)
-                        else {
-                            val learnedWords = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
-                            (unlearnedWords + learnedWords).shuffled().take(COUNT_OPTIONALS)
-                        }
-
-                        val variants = answerOptions.mapIndexed { index, option -> "${index + 1}: ${option.translate}" }
-
-                        println(variants.joinToString(separator = "\n", postfix = "\n0 - выход"))
+                        println("Выберите правильный перевод слова: ${question.correctAnswer.original} или нажмите 0 для выхода в главное меню")
+                        println(question.asConsoleString())
 
                         when(val userAnswer: Int? = readln().toIntOrNull()) {
                             in 1..4 -> {
-                                if (userAnswer != null && answerOptions[userAnswer - 1].translate == wordForQuestion?.translate) {
-                                    println("Правильно!")
-                                    wordForQuestion.correctAnswersCount++
-                                    saveDictionary(dictionary)
-                                } else println("НЕ правильно!")
+                                if (trainer.checkAnswer(userAnswer?.minus(1))) println("Правильно!")
+                                else println("НЕ правильно!")
                             }
                             0 -> {
                                 println("Выходим в главное меню")
@@ -71,8 +58,8 @@ fun main() {
                 }
             }
             "2" -> {
-                val learnedWordsCount = dictionary.count { it.correctAnswersCount >= MIN_COUNT_CORRECT_ANSWERS }
-                println("Выучено $learnedWordsCount из ${dictionary.count()} слов | ${100 / dictionary.count() * learnedWordsCount}%")
+                val statistics = trainer.getStatistics()
+                println("Выучено ${statistics.learned} из ${statistics.total} слов | ${statistics.percent}%")
             }
             "0" -> {
                 println("Вы нажали: Выход")
@@ -84,11 +71,3 @@ fun main() {
 
 }
 
-fun saveDictionary(dictionary: List<Word>) {
-    val wordsFile: File = File("words.txt")
-    val fileContent = dictionary.joinToString("\n") { "${it.original}|${it.translate}|${it.correctAnswersCount}" }
-    wordsFile.writeText(fileContent)
-}
-
-const val MIN_COUNT_CORRECT_ANSWERS = 3
-const val COUNT_OPTIONALS = 4
