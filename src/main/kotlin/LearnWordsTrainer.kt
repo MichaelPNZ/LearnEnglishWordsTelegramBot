@@ -1,6 +1,11 @@
-import additional.Word
+
 import java.io.File
-import java.lang.IllegalStateException
+
+data class Word(
+    val original: String,
+    val translate: String,
+    var correctAnswersCount: Int = 0,
+)
 
 data class Statistics(
     val learned: Int,
@@ -19,7 +24,7 @@ class LearnWordsTrainer(
     private val fileName: String = "words.txt",
     ) {
 
-    private var question: Question? = null
+    var question: Question? = null
     private val dictionary = loadDictionary()
 
     fun getStatistics(): Statistics {
