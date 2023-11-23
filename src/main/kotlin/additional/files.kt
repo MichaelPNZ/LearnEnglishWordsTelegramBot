@@ -2,13 +2,7 @@ package additional
 
 import LearnWordsTrainer
 import Question
-import java.lang.Exception
 
-data class Word(
-    val original: String,
-    val translate: String,
-    var correctAnswersCount: Int = 0,
-)
 
 fun Question.asConsoleString() : String {
     val variants = this.variants
