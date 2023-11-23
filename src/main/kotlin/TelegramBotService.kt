@@ -8,9 +8,10 @@ import java.nio.charset.StandardCharsets
 
 class TelegramBotService(private val botToken: String) {
 
+    private val client: HttpClient = HttpClient.newBuilder().build()
+
     fun getUpdates(updateId: Int): String {
         val urlGetUpdates = "$BASE_URL$botToken/getUpdates?offset=$updateId"
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
 
@@ -25,7 +26,6 @@ class TelegramBotService(private val botToken: String) {
         println(encoded)
 
         val urlSendMessage = "$BASE_URL$botToken/sendMessage?chat_id=$chatId&text=$encoded"
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
 
@@ -54,7 +54,6 @@ class TelegramBotService(private val botToken: String) {
                 }
             }
         """.trimIndent()
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlSendMessage))
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(sendMenuBody))
@@ -88,7 +87,6 @@ class TelegramBotService(private val botToken: String) {
                 }
             }
         """.trimIndent()
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlSendMessage))
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(sendMenuBody))
@@ -98,7 +96,7 @@ class TelegramBotService(private val botToken: String) {
         return response.body()
     }
 
-    fun checkNextQuestionAndSend(trainer: LearnWordsTrainer, chatId: Int) {
+    fun checkNextQuestionAndSend(trainer: LearnWordsTrainer, chatId: Int?) {
         val nextQuestion = trainer.getNextQuestion()?.correctAnswer
         if (nextQuestion == null) {
             val send: String = sendMessage(chatId.toString(), "Вы выучили все слова в базе")

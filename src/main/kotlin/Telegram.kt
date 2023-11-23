@@ -27,18 +27,18 @@ fun main(args: Array<String>) {
             println(sendMessage)
         }
 
-        if (data != null && data.lowercase() == STATISTICS_CLICKED) {
+        if (data?.lowercase() == STATISTICS_CLICKED) {
             val sendMessage: String = telegramBotService.sendMessage(
                 chatId.toString(),
                 "Выучено ${trainer.getStatistics().learned} из ${trainer.getStatistics().total} слов | ${trainer.getStatistics().percent}%")
             println(sendMessage)
         }
 
-        if (chatId != null && data?.lowercase() == LEARN_WORDS_CLICKED) {
+        if (data?.lowercase() == LEARN_WORDS_CLICKED) {
             telegramBotService.checkNextQuestionAndSend(trainer, chatId)
         }
 
-        if (chatId != null && data != null && data.startsWith(CALLBACK_DATA_ANSWER_PREFIX, true)) {
+        if (data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX, true) == true) {
             val index = data.substringAfter(CALLBACK_DATA_ANSWER_PREFIX).toInt()
             if (trainer.checkAnswer(index)) {
                 val sendMessage: String = telegramBotService.sendMessage(chatId.toString(), "Правильно")
