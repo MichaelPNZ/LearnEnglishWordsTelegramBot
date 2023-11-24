@@ -5,3 +5,4 @@ bird|птица|0
 car|машина|0
 milk|молоко|0
 bread|хлеб|0
+transformation|преобразование|0
